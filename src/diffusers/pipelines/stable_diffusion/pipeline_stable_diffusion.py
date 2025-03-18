@@ -484,16 +484,19 @@ class StableDiffusionPipeline(
                 return_tensors="pt",
             )
 
-            if hasattr(self.text_encoder.config, "use_attention_mask") and self.text_encoder.config.use_attention_mask:
-                attention_mask = uncond_input.attention_mask.to(device)
-            else:
-                attention_mask = None
-
-            negative_prompt_embeds = self.text_encoder(
+            if self.text_encoder:
+                if hasattr(self.text_encoder.config, "use_attention_mask") and self.text_encoder.config.use_attention_mask:
+                    attention_mask = uncond_input.attention_mask.to(device)
+                else:
+                    attention_mask = None
+                negative_prompt_embeds = self.text_encoder(
                 uncond_input.input_ids.to(device),
                 attention_mask=attention_mask,
-            )
-            negative_prompt_embeds = negative_prompt_embeds[0]
+                )
+                negative_prompt_embeds = negative_prompt_embeds[0]
+            else:
+                attention_mask = None
+                negative_prompt_embeds = torch.zeros_like(prompt_embeds)
 
         if do_classifier_free_guidance:
             # duplicate unconditional embeddings for each generation per prompt, using mps friendly method
