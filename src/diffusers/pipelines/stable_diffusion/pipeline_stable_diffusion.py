@@ -340,6 +340,7 @@ class StableDiffusionPipeline(
         negative_prompt_embeds: Optional[torch.Tensor] = None,
         lora_scale: Optional[float] = None,
         clip_skip: Optional[int] = None,
+        gemini_embeddings: Optional[torch.Tensor] = None,
     ):
         r"""
         Encodes the prompt into text encoder hidden states.
@@ -420,12 +421,20 @@ class StableDiffusionPipeline(
                 attention_mask = None
 
             if clip_skip is None:
-                prompt_embeds = self.text_encoder(text_input_ids.to(device), attention_mask=attention_mask)
+                if gemini_embeddings is not None:
+                    prompt_embeds = self.text_encoder(text_input_ids.to(device), attention_mask=attention_mask, gemini_embedding=gemini_embeddings)
+                else:
+                    prompt_embeds = self.text_encoder(text_input_ids.to(device), attention_mask=attention_mask)
                 prompt_embeds = prompt_embeds[0]
             else:
-                prompt_embeds = self.text_encoder(
-                    text_input_ids.to(device), attention_mask=attention_mask, output_hidden_states=True
-                )
+                if gemini_embeddings is not None:
+                    prompt_embeds = self.text_encoder(
+                        text_input_ids.to(device), attention_mask=attention_mask, output_hidden_states=True, gemini_embedding=gemini_embeddings
+                    )
+                else:
+                    prompt_embeds = self.text_encoder(
+                        text_input_ids.to(device), attention_mask=attention_mask, output_hidden_states=True
+                    )
                 # Access the `hidden_states` first, that contains a tuple of
                 # all the hidden states from the encoder layers. Then index into
                 # the tuple to access the hidden states from the desired layer.
@@ -803,6 +812,7 @@ class StableDiffusionPipeline(
         cross_attention_kwargs: Optional[Dict[str, Any]] = None,
         guidance_rescale: float = 0.0,
         clip_skip: Optional[int] = None,
+        gemini_embeddings: Optional[torch.Tensor] = None,
         callback_on_step_end: Optional[
             Union[Callable[[int, int, Dict], None], PipelineCallback, MultiPipelineCallbacks]
         ] = None,
@@ -974,6 +984,7 @@ class StableDiffusionPipeline(
             negative_prompt_embeds=negative_prompt_embeds,
             lora_scale=lora_scale,
             clip_skip=self.clip_skip,
+            gemini_embeddings=gemini_embeddings,
         )
 
         # For classifier free guidance, we need to do two forward passes.
