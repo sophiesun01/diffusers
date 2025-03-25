@@ -422,14 +422,14 @@ class StableDiffusionPipeline(
 
             if clip_skip is None:
                 if gemini_embeddings is not None:
-                    prompt_embeds = self.text_encoder(text_input_ids.to(device), attention_mask=attention_mask, gemini_embedding=gemini_embeddings)
+                    prompt_embeds = self.text_encoder(text_input_ids.to(device), attention_mask=attention_mask, gemini_embeddings=gemini_embeddings)
                 else:
                     prompt_embeds = self.text_encoder(text_input_ids.to(device), attention_mask=attention_mask)
                 prompt_embeds = prompt_embeds[0]
             else:
                 if gemini_embeddings is not None:
                     prompt_embeds = self.text_encoder(
-                        text_input_ids.to(device), attention_mask=attention_mask, output_hidden_states=True, gemini_embedding=gemini_embeddings
+                        text_input_ids.to(device), attention_mask=attention_mask, output_hidden_states=True, gemini_embeddings=gemini_embeddings
                     )
                 else:
                     prompt_embeds = self.text_encoder(
@@ -501,6 +501,7 @@ class StableDiffusionPipeline(
                 negative_prompt_embeds = self.text_encoder(
                 uncond_input.input_ids.to(device),
                 attention_mask=attention_mask,
+                gemini_embeddings=gemini_embeddings,
                 )
                 negative_prompt_embeds = negative_prompt_embeds[0]
             else:
