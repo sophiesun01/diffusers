@@ -498,11 +498,17 @@ class StableDiffusionPipeline(
                     attention_mask = uncond_input.attention_mask.to(device)
                 else:
                     attention_mask = None
-                negative_prompt_embeds = self.text_encoder(
-                uncond_input.input_ids.to(device),
-                attention_mask=attention_mask,
-                gemini_embeddings=gemini_embeddings,
-                )
+                if gemini_embeddings is not None:
+                    negative_prompt_embeds = self.text_encoder(
+                        uncond_input.input_ids.to(device),
+                        attention_mask=attention_mask,
+                        gemini_embeddings=gemini_embeddings,
+                    )
+                else:
+                    negative_prompt_embeds = self.text_encoder(
+                        uncond_input.input_ids.to(device),
+                        attention_mask=attention_mask,
+                    )
                 negative_prompt_embeds = negative_prompt_embeds[0]
             else:
                 attention_mask = None
