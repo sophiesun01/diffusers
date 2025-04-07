@@ -57,7 +57,7 @@ def make_image_grid(images: List[PIL.Image.Image], rows: int, cols: int, resize:
     assert len(images) == rows * cols
 
     if resize is not None:
-        images = [img.resize((resize, resize)) for img in images]
+        images = [img.resize((resize, resize), resample=Image.BILINEAR) for img in images]
 
     w, h = images[0].size
     grid = Image.new("RGB", size=(cols * w, rows * h))
